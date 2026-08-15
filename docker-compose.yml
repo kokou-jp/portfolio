@@ -1,0 +1,68 @@
+version: '3.8'
+
+services:
+  # Database Service
+  postgres:
+    image: postgres:16-alpine
+    container_name: portfolio-db
+    restart: unless-stopped
+    ports:
+      - "${DB_PORT:-5432}:5432"
+    environment:
+      POSTGRES_DB: ${DB_DATABASE:-portfolio}
+      POSTGRES_USER: ${DB_USERNAME:-postgres}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-postgres}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    networks:
+      - portfolio-network
+
+  # Backend Service (Laravel)
+  backend:
+    build:
+      context: ./backend
+      dockerfile: ../docker/backend.dockerfile
+    container_name: portfolio-backend
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./backend:/var/www/html
+    environment:
+      APP_ENV: local
+      APP_DEBUG: 'true'
+      DB_CONNECTION: pgsql
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_DATABASE: ${DB_DATABASE:-portfolio}
+      DB_USERNAME: ${DB_USERNAME:-postgres}
+      DB_PASSWORD: ${DB_PASSWORD:-postgres}
+    depends_on:
+      - postgres
+    networks:
+      - portfolio-network
+
+  # Frontend Service (React / Vite)
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: ../docker/frontend.dockerfile
+    container_name: portfolio-frontend
+    restart: unless-stopped
+    ports:
+      - "5173:5173"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    depends_on:
+      - backend
+    networks:
+      - portfolio-network
+
+networks:
+  portfolio-network:
+    driver: bridge
+
+volumes:
+  pgdata:
+    driver: local

@@ -1,0 +1,33 @@
+# Root gitignore
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDEs
+.idea/
+.vscode/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Project specific
+/backend/.env
+/backend/vendor/
+/backend/bootstrap/cache/*
+/backend/storage/*.key
+/backend/storage/framework/cache/data/*
+/backend/storage/framework/sessions/*
+/backend/storage/framework/views/*
+/backend/storage/framework/testing/*
+
+/frontend/node_modules/
+/frontend/dist/
+/frontend/.env
+/frontend/.env.local
+
+# Docker logs
+*.log
+docker/data/
